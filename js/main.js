@@ -6,6 +6,7 @@
 		document: $(doc),
 		page: $('html, body'),
 		mobile: 768,
+		table: 992,
 		body: $('body'),
 		params: {
 			lazyload: {
@@ -45,6 +46,7 @@
 		},
 		initPage: function(){
 			//SELECT INIT
+
 			$('[data-select]').js_select();
 			if($('.slider_range').length){
 				$(".slider_range").slider({
@@ -61,11 +63,20 @@
 					}
 				});
 			}
-		 
-		
+			if($('.check_ratio').length){
+				$('.check_ratio a').on('click', function(e){
+					e.preventDefault();
+					var t=$(this);
+					$('.check_ratio a').removeClass('active');
+					t.addClass('active');
+					t.parent().find('#ratio_val').val(t.data('ratio'));
+				});
+
+			}
 			//MOBILE BUTTON
 			$(doc).on('click', '.show_filter', function(e){
 				e.preventDefault();
+				alert('1')
 				var t=$(this);
 				t.toggleClass('opened');
 				if(t.hasClass('opened')){
@@ -75,6 +86,26 @@
 					$('.vakansy_filter').slideUp();
 					App.unlock_scroll_body();
 				}
+				
+			});
+			$(doc).on('click','.show_repect_filter', function(e){
+				e.preventDefault();
+				var t=$(this);
+				t.toggleClass('opened');
+				
+				if(t.hasClass('opened')){
+					$('.dropdown_filter').slideDown();
+					App.lock_scroll_body('.dropdown_filter');
+				} else {
+					$('.dropdown_filter').slideUp();
+					App.unlock_scroll_body();
+				}
+			});
+			$(doc).on('click', '.dropdown_filter .go_back', function(e){
+				e.preventDefault();
+				$('.show_repect_filter').removeClass('opened');
+				$('.dropdown_filter').slideUp();
+				App.unlock_scroll_body();
 			});
 			$(doc).on('click', '.vakansy_filter .go_back', function(e){
 				e.preventDefault();
@@ -113,8 +144,16 @@
 			//ADD FILE
 			$('.add_file').click( function(e){
 				e.stopPropagation();
-				$(this).parent().find('input[type=file]').trigger('click')
+				$(this).parent().find('input[type=file]').trigger('click');
 			})
+			$('.add_file').parent().find('input[type=file]').change(function() {
+				var filename = $(this).val();
+				if(filename){
+					$(this).parent().find('.add_file span').html(filename.replace(/C:\\fakepath\\/i, ''));
+				} else {
+					$(this).parent().find('.add_file span').html($(this).parent().find('.add_file').data('mask'));
+				}
+			});
 			//PASSWORD BUTTON
 			$(doc).on('click','.show_password', function(e){
 				e.preventDefault();
@@ -140,7 +179,7 @@
 				$('.popup_window, .shadow_site').hide();
 			});
 			//BUTTON UP START
-			if($(win).width()>App.mobile){
+			//if($(win).width()>App.mobile){
 				if($('.button_up').length){
 					$(doc).on('click', '.button_up', function(e){
 						e.preventDefault();
@@ -168,10 +207,11 @@
 						}, 300)
 					});
 				}
-			}
+			//}
 		},
 		InitHeadSlider: function(){
 			//SLIDER START
+
 			if($('.slider ul').length){
 				$(win).on('resize', function(){
 					var win_height=$(this).height(),
@@ -186,7 +226,7 @@
 						adaptiveHeight: true,
 						onSliderLoad: function(){
 							$('.slider ul').css('overflow', 'visible');
-							if($(win).width()>App.mobile){
+							if($(win).width()>App.table){
 								var $poster = $('.slider .container'),
 									$layer = $('[class*="layer-"]'),
 									w = $(win).width(),
@@ -264,46 +304,59 @@
 							arrow_left.hide()
 						}
 					}
-				})
-				$(win).on('scroll', function(){
-					var scrolltop=$(this).scrollTop(),
-					recepts=$('.recepts_slider .handle'),
-					recepts_top=recepts.offset().top,
-					recepts_height=recepts.outerHeight();
-					//RECEPTS ANIMATION
-					if(scrolltop>(recepts_top-(recepts_height-100))){
-						if(!recepts.hasClass('animated')){
-							recepts.addClass('animated');
+				});
+				if(App.table<$(win).width()){
+					$(win).on('scroll', function(){
+						var scrolltop=$(this).scrollTop(),
+						recepts=$('.recepts_slider .handle'),
+						recepts_top=recepts.offset().top-$(win).height()+140,
+						recepts_height=recepts.outerHeight();
+						console.log(recepts_top+' '+scrolltop);
+						//RECEPTS ANIMATION
+						if(scrolltop>(recepts_top)){
+							if(!recepts.hasClass('animated')){
+								recepts.addClass('animated');
+							}
 						}
-					}
-				})
+					})
+				} else {
+					$('.recepts_slider .handle').addClass('animated');
+				}
 			}
 		},
 		initNumber: function(){
-			$(win).on('scroll', function(){
-				var scrolltop=$(this).scrollTop(),
-				statistic=$('.statistic');
-				if(statistic.length){
-					statistic_top=statistic.offset().top,
-					statistic_height=statistic.outerHeight();
-					//RECEPTS ANIMATION
-					if(scrolltop>(statistic_top-(statistic_height-50))){
-						
-						if(!statistic.hasClass('animated')){
-							$('[data-count]').each(function(index, el) {
-								$(this).animateNumber({ number: $(this).data('count'), duration: 2000, }, 1000);
-							});
-							statistic.addClass('animated')
+			if($('.statistic').length){
+				$(win).on('scroll', function(){
+					var scrolltop=$(this).scrollTop(),
+					statistic=$('.statistic');
+					if(statistic.length){
+						statistic_top=statistic.offset().top-$(win).height()+140,
+						statistic_height=statistic.outerHeight();
+						//RECEPTS ANIMATION
+						if(scrolltop>(statistic_top)){
+							
+							if(!statistic.hasClass('animated')){
+								$('[data-count]').each(function(index, el) {
+									$(this).animateNumber({ number: $(this).data('count'), duration: 2000, }, 1000);
+								});
+								statistic.addClass('animated')
+							}
 						}
 					}
-				}
-			});
-			$(win).on('load', function(){
-				$('.about .statistic, .page_date .statistic').addClass('animated');
-				$('[data-count]').each(function(index, el) {
-					$(this).animateNumber({ number: $(this).data('count'), duration: 2000, }, 1000);
 				});
-			})
+				if(App.table>$(win).width()){
+					$('.statistic').addClass('animated');
+					$('[data-count]').each(function(index, el) {
+						$(this).animateNumber({ number: $(this).data('count'), duration: 2000, }, 1000);
+					});
+				}
+				$(win).on('load', function(){
+					$('.about .statistic, .page_date .statistic').addClass('animated');
+					$('[data-count]').each(function(index, el) {
+						$(this).animateNumber({ number: $(this).data('count'), duration: 2000, }, 1000);
+					});
+				})
+			}
 		},
 		initMap: function(){
 			//MAP START
@@ -553,6 +606,30 @@
 						center: {lat: 55.0060833, lng: 82.9226662},
 						styles: [{"featureType":"landscape","stylers":[{"hue":"#FFBB00"},{"saturation":43.400000000000006},{"lightness":37.599999999999994},{"gamma":1}]},{"featureType":"road.highway","stylers":[{"hue":"#FFC200"},{"saturation":-61.8},{"lightness":45.599999999999994},{"gamma":1}]},{"featureType":"road.arterial","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":51.19999999999999},{"gamma":1}]},{"featureType":"road.local","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":52},{"gamma":1}]},{"featureType":"water","stylers":[{"hue":"#0078FF"},{"saturation":-13.200000000000003},{"lightness":2.4000000000000057},{"gamma":1}]},{"featureType":"poi","stylers":[{"hue":"#00FF6A"},{"saturation":-1.0989010989011234},{"lightness":11.200000000000017},{"gamma":1}]}]
 					});
+				 
+					var input = document.getElementById('search_city');
+
+					var autocomplete = new google.maps.places.Autocomplete((input), {
+						types: ['(cities)'],
+						address: ['Волгоград','Москва'],
+						componentRestrictions: {'country': 'ru'}
+					});
+				 
+					autocomplete.addListener('place_changed', function() {
+						var place = autocomplete.getPlace();
+						if (!place.geometry) {
+							return;
+						}
+						if (place.geometry.viewport) {
+							map.fitBounds(place.geometry.viewport);
+						} else {
+							map.setCenter(place.geometry.location);
+							map.setZoom(12);
+						}
+					});
+
+					
+					//map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 					$.getJSON( "js/map_base.json", function( data ) {
 						$.each( data, function( key, val ) {
 							var cordx=val['GEO_LATITUDE'],
@@ -584,6 +661,10 @@
 								});
 								marker.addListener('click', function() {
 									infowindow.open(map, marker);
+
+									map.setZoom(14);
+									map.setCenter(marker.position);
+							 
 									map.setOptions({draggable: false});
 									this.set('label', 
 										{
@@ -596,6 +677,8 @@
 								});
 								google.maps.event.addListener(infowindow,'closeclick',function(){
 									map.setOptions({draggable: true});
+									map.setZoom(12);
+									map.setCenter(marker.position);
 									marker.set('label', 
 										{
 											text: opentime+'-'+closetime,
