@@ -911,7 +911,7 @@
 					var  title=name,
 						get_color_rgb=hexToRgb(color),
 						color_rgb=get_color_rgb['r']+','+get_color_rgb['g']+','+get_color_rgb['b'];
-					var option_array=type.split(','),
+					var option_array=type,
 						option_list='';
 					$.each(option_array,function(key, val ) {
 						option_list+='<option value="'+val+'">'+val+'</option>'
@@ -926,13 +926,14 @@
 				function add_option ($this,num, category_id){
 					var type='';
 					$.getJSON( "js/buy_list.json", function( data ) {
+
 						$.each(data, function( key, val, index ) {
 							if(val['ID']==category_id){
 								type=val['TYPE'];
 							}
 						});
 						//console.log(type)
-						var option_array=type.split(','),
+						var option_array=type,
 						option_list='';
 						$.each(option_array,function(key, val ) {
 							option_list+='<option value="'+val+'">'+val+'</option>'
@@ -1011,6 +1012,7 @@
 					$.getJSON( "js/buy_list.json", function( data ) {
 						$.each(data, function( key, val, index ) {
 							i++;
+							//  console.log(val['TYPE']);
 							if(val['ID']==category_id){
 								add_category(category_id, val['COLOR'], val['NAME'], val['IMAGE'], val['TYPE']);
 								result_list();
@@ -1077,17 +1079,17 @@
 						}
 						json_array.push(json_object);
 						if(length==(parseInt(index+1))){
+						  //console.log(json_array);
 							//ВОТ ТУТ ПОПРАВИТЬ КУДА ТЕБЕ ОТПРАВЛЯТЬ И КАК ПОЛУЧАТЬ ОТВЕТ
-							//$.ajax({
-							//	dataType: "json",
-							//	url: 'save_list.php',
-							//	data: json:JSON.stringify(json_array),
-							//	success: function(){
-							//		alert('Готово');
-							//		console.log(JSON.stringify(json_array));
-							//	}
-							//});
-							console.log(JSON.stringify(json_array));
+							$.ajax({
+							    type: "POST",
+								url: 'js/addNewUserList.php',
+								data: {products:JSON.stringify(json_array)},
+								success: function(msg){
+									alert('Готово');
+									console.log(msg);
+								}
+							});
 						}
 					});
 					
