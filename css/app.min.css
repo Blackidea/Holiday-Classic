@@ -4444,6 +4444,9 @@ footer .social_buttons .social_list a:hover svg .st1 {
 .buy_list .add_category ul.list li a:hover:before {
   color: #68170f;
 }
+.buy_list .pos_releative {
+  position: relative;
+}
 .buy_list .list_items {
   padding-left: 15px;
   padding-right: 15px;
@@ -4453,6 +4456,10 @@ footer .social_buttons .social_list a:hover svg .st1 {
   -webkit-box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
           box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+}
+.buy_list .list_items.fixed {
+  margin-right: 15px;
+  position: absolute;
 }
 .buy_list .list_items .title {
   padding-top: 25px;

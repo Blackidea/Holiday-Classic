@@ -906,6 +906,31 @@
 						b: parseInt(result[3], 16)
 					} : null;
 				}
+				
+			 
+				if($(win).width()>991){
+					$(win).on('load', function(){
+						container=$('.buy_list .list_items'),
+						container_width=container.outerWidth(),
+						container_pos=container.offset().top,
+						category_box=$('.add_category'),
+						category_box_pos=$('.add_category').offset().top-100;
+						$(win).scroll(function(){
+							var scroll_pos=$(this).scrollTop();
+								if(scroll_pos>=container_pos && scroll_pos<=category_box_pos){
+									container.addClass('fixed');
+									container.css('top',scroll_pos-container_pos).css('width', container_width)
+								}
+								if(container.hasClass('fixed')){
+									if(scroll_pos<container_pos){
+										container.removeClass('fixed')
+									}
+								}
+						})
+					})
+				}
+				
+				
 				var removebtn='<a href="#" class="remove"><svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 22 22" style="enable-background:new 0 0 22 22;" xml:space="preserve" width=""><style type="text/css">.st0{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}</style><line id="XMLID_233_" class="st0" x1="20.5" y1="1.5" x2="1.5" y2="20.5"/><line id="XMLID_313_" class="st0" x1="1.5" y1="1.5" x2="20.5" y2="20.5"/></svg></a>';
 				//IF HAS COOKIE
 				if(Cookies.get('items_seved') && Cookies.get('items_seved')!='[]'){
@@ -1070,7 +1095,7 @@
 						$(this).parents('.option').remove();
 						result_list();
 					}
-				})
+				});
 				$(doc).on('click', '.add_category .list li a', function(e){
 					e.preventDefault();
 					var category_id=$(this).data('id'),
@@ -1116,12 +1141,9 @@
 					e.preventDefault();
 					if (confirm('Вы уверены что хотите удалить все поля?')) {
 						length=$('.product_items_list .product_item').length;
-						$('.product_items_list .product_item').each(function(index, el) {
-							$(this).find('.option:not(:last)').remove()
-							if(length==(parseInt(index+1))){
-								result_list();
-							}
-						});
+						$('.product_items_list .product_item').remove();
+						result_list();
+					 
 					}
 				});
 				$(doc).on('click', '.save_all', function(e){
