@@ -892,6 +892,7 @@
 				$('.buy_list .list_items .scroll_wrapper').scrollbar();
 				$('.buy_list .add_category .list').scrollbar();
 				//PANEL EDIT
+
 				function hexToRgb(hex) {
 					var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 					hex = hex.replace(shorthandRegex, function(m, r, g, b) {
@@ -906,6 +907,71 @@
 					} : null;
 				}
 				var removebtn='<a href="#" class="remove"><svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 22 22" style="enable-background:new 0 0 22 22;" xml:space="preserve" width=""><style type="text/css">.st0{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}</style><line id="XMLID_233_" class="st0" x1="20.5" y1="1.5" x2="1.5" y2="20.5"/><line id="XMLID_313_" class="st0" x1="1.5" y1="1.5" x2="20.5" y2="20.5"/></svg></a>';
+				//IF HAS COOKIE
+				if(Cookies.get('items_seved') && Cookies.get('items_seved')!='[]'){
+					var saved_array=Cookies.get('items_seved');
+					$('.product_item').remove();
+					$('.list_items .item').remove();
+					
+	 
+
+					$.each($.parseJSON(saved_array), function(index, val) {
+						 
+						var category_id=val['category_id'],
+							t=$(this),
+							chek_has_element=false, i=0;
+						$.getJSON( "js/buy_list.json", function( data ) {
+							var type='';
+							$.each(data, function( key, val, index ) {
+								i++;
+								//  console.log(val['TYPE']);
+								if(val['ID']==category_id){
+									add_category(category_id, val['COLOR'], val['NAME'], val['IMAGE'], val['TYPE']);
+									chek_has_element=true;
+									type=val['TYPE'];
+								}
+								if(data.length==i){
+									if(!chek_has_element){
+										alert('К сожелению категории не найдено.')
+									}
+								}
+							});
+							
+							//console.log(type)
+							var products=val['products'];
+				 
+							$.each(products, function(index, val) {
+								option_list='';
+								
+								$.each(type,function(key, value ) {
+									//console.log(val['name']+' '+value)
+									if(val['name']==value){
+										option_list+='<option data-selected="true" value="'+value+'">'+value+'</option>';
+									} else {
+										option_list+='<option value="'+value+'">'+value+'</option>';
+									}
+								});
+								if(val['name']!='Тип продукта'){
+									//console.log(option_list)
+									if($('#product_id_'+category_id+' .product_options .option').length>=2){
+										$('#product_id_'+category_id+' .product_options .option:last').before('<div class="option"><div class="field select_field"><select name="option_id_'+category_id+'_'+(parseInt(index)+1)+'" data-select=""> <option data-default="true" value="Тип продукта">Тип продукта</option>'+option_list+'</select></div><div class="field desc_field"><input type="text" placeholder="Описание" value="'+val['desc']+'"></div><div class="field num_field"><input type="text" placeholder="Кол-во" value="'+val['num_field']+'"></div><div class="field remove_field">'+removebtn+'</div></div>');
+										$('#product_id_'+category_id+' .product_options .option select[name="option_id_'+category_id+'_'+(parseInt(index)+1)+'"]').val(val['name'])
+										$('#product_id_'+category_id+' .product_options .option select[name="option_id_'+category_id+'_'+(parseInt(index)+1)+'"]').js_select();
+									} else {
+										$('#product_id_'+category_id+' .product_options .option:first').before('<div class="option"><div class="field select_field"><select name="option_id_'+category_id+'_'+(parseInt(index)+1)+'" data-select=""> <option data-default="true" value="Тип продукта">Тип продукта</option>'+option_list+'</select></div><div class="field desc_field"><input type="text" placeholder="Описание" value="'+val['desc']+'"></div><div class="field num_field"><input type="text" placeholder="Кол-во" value="'+val['num_field']+'"></div><div class="field remove_field">'+removebtn+'</div></div>');
+										$('#product_id_'+category_id+' .product_options .option:first select').val(val['name'])
+										$('#product_id_'+category_id+' .product_options .option:first select').js_select();
+									}
+									
+									 
+								}
+							});
+							result_list()
+						});
+
+						
+					});
+				}
 				//ADD CATEGORY
 				function add_category(category_id, color, name, image, type){
 					var  title=name,
@@ -926,7 +992,6 @@
 				function add_option ($this,num, category_id){
 					var type='';
 					$.getJSON( "js/buy_list.json", function( data ) {
-
 						$.each(data, function( key, val, index ) {
 							if(val['ID']==category_id){
 								type=val['TYPE'];
@@ -957,11 +1022,13 @@
 					var t=$(this),
 						option_lenght=t.parents('.product_options').find('.option').length,
 						options=t.parents('.option');
+					t.parents('.option').find('select option[value="'+t.find('span').text()+'"]').attr('selected', 'selected');
 					if(!options.next().length){
 						if(t.find('span').text()!='Тип продукта'){
 							add_option(t, option_lenght, t.parents('.product_item').data('product_id'));
 						}
 					}
+					console.log(t.parents('.product_options').find('.option select').val())
 					result_list();
 				});
 				$(doc).on('keyup', '.product_item .desc_field input,.product_item .num_field input', function(e){
@@ -1069,7 +1136,7 @@
 							json_option_object[index]={
 								name: $(this).find('select').val(),
 								desc: $(this).find('.desc_field input').val(),
-								num_field: $(this).find('.desc_field input').val()
+								num_field: $(this).find('.num_field input').val()
 							}
 						});
 						json_object={
@@ -1087,6 +1154,7 @@
 								data: {products:JSON.stringify(json_array)},
 								success: function(msg){
 									alert('Готово');
+									$('.share_tabs .save_all').addClass('active')
 									console.log(msg);
 								}
 							});
@@ -1097,20 +1165,41 @@
 				function result_list(){
 					$html='';
 					editbtn='<a class="edit" href="#"><svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 38.9 38.7" style="enable-background:new 0 0 38.9 38.7;" xml:space="preserve"><path d="M24.2,6.5l7.9,7.9l-20,20l-7.9-7.9L24.2,6.5z M38.1,4.5L34.6,1c-1.4-1.4-3.6-1.4-4.9,0l-3.4,3.4l7.9,7.9l3.9-3.9 C39.1,7.3,39.1,5.6,38.1,4.5L38.1,4.5z M0,37.6c-0.1,0.6,0.4,1.2,1.1,1.1l8.8-2.1L2,28.6L0,37.6z M0,37.6"/></svg></a>'
+					json_object={};
+					json_array=[];
+					
 					$('.product_items_list .product_item').each(function(index, el) {
 						var t=$(this),
 							$option_list='',
 							title=t.find('.category_title').find('.title').html(),
 							color=t.find('.category_title').find('.title').css('color');
+							json_option_object={};
+							select_val='';
 							t.find('.option').each(function(index, el) {
+								
+								
 								select_val=$(this).find('select').val();
+								json_option_object[index]={
+									name: select_val,
+									desc: $(this).find('.desc_field input').val(),
+									num_field: $(this).find('.num_field input').val()
+								}
 								if(select_val!='Тип продукта'){
+									 
 									$option_list+='<div class="option" data-itemindex="'+index+'"><div class="name"><div class="before"  style="background:'+color+'"></div><span>'+select_val+'</span><span>'+$(this).find('.desc_field input').val()+' '+$(this).find('.num_field input').val()+'</span></div><div class="controls">'+editbtn+removebtn+'</div></div>';
 								}
 								
 							});
+							json_object={
+								category_id: t.data('product_id'),
+								products:json_option_object
+							}
+							json_array.push(json_object);
+							
 							$html+='<div class="item" data-product_id="'+t.data('product_id')+'"><div class="item_title" style="color:'+color+'">'+title+'</div>'+$option_list+'</div>';
 					});
+					Cookies.set('items_seved', json_array);
+				 
 					$('#result_list').html($html);
 				}
 			}

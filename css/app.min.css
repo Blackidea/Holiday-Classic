@@ -3460,14 +3460,17 @@ footer .social_buttons .social_list a:hover svg .st1 {
   -webkit-transition: 0.5s all;
   transition: 0.5s all;
 }
-.share_tabs a:hover {
+.share_tabs a:hover,
+.share_tabs a.active {
   -webkit-box-shadow: 6px 0 20px rgba(0, 0, 0, 0.25);
           box-shadow: 6px 0 20px rgba(0, 0, 0, 0.25);
 }
-.share_tabs a:hover svg {
+.share_tabs a:hover svg,
+.share_tabs a.active svg {
   fill: #68170f;
 }
-.share_tabs a:hover svg .st0 {
+.share_tabs a:hover svg .st0,
+.share_tabs a.active svg .st0 {
   fill: #68170f;
   stroke: #68170f;
 }
