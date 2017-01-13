@@ -592,114 +592,239 @@
 				init();
 			}
 			if($('#map_filter').length){
-				$('.get_stores .stores_list').scrollbar();
+				
 				$('.filters_set').scrollbar();
 				$(doc).on('click', '.dropdown_filter .title', function(e){
 					e.preventDefault();
 					$(this).parent().toggleClass('opened')
 				})
-				function init () {
-					var map = new google.maps.Map(document.getElementById('map_filter'), {
-						zoom: 12,
-						scrollwheel: false,
-						disableDefaultUI: true,
-						center: {lat: 55.0060833, lng: 82.9226662},
-						styles: [{"featureType":"landscape","stylers":[{"hue":"#FFBB00"},{"saturation":43.400000000000006},{"lightness":37.599999999999994},{"gamma":1}]},{"featureType":"road.highway","stylers":[{"hue":"#FFC200"},{"saturation":-61.8},{"lightness":45.599999999999994},{"gamma":1}]},{"featureType":"road.arterial","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":51.19999999999999},{"gamma":1}]},{"featureType":"road.local","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":52},{"gamma":1}]},{"featureType":"water","stylers":[{"hue":"#0078FF"},{"saturation":-13.200000000000003},{"lightness":2.4000000000000057},{"gamma":1}]},{"featureType":"poi","stylers":[{"hue":"#00FF6A"},{"saturation":-1.0989010989011234},{"lightness":11.200000000000017},{"gamma":1}]}]
-					});
-				 
-					var input = document.getElementById('search_city');
-
-					var autocomplete = new google.maps.places.Autocomplete((input), {
-						types: ['(cities)'],
-						address: ['Волгоград','Москва'],
-						componentRestrictions: {'country': 'ru'}
-					});
-				 
-					autocomplete.addListener('place_changed', function() {
-						var place = autocomplete.getPlace();
-						if (!place.geometry) {
-							return;
-						}
-						if (place.geometry.viewport) {
-							map.fitBounds(place.geometry.viewport);
-						} else {
-							map.setCenter(place.geometry.location);
-							map.setZoom(12);
-						}
-					});
-
+				function init (filters) {
 					
-					//map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-					$.getJSON( "js/map_base.json", function( data ) {
-						$.each( data, function( key, val ) {
-							var cordx=val['GEO_LATITUDE'],
-								cordy=val['GEO_LONGITUDE'],
-								opentime=val['OPEN_TIME'],
-								closetime=val['CLOSE_TIME'],
-								adress=val['ADDRESS'];
-								 var icon = {
-									url: "img/map.svg",
-									anchor: new google.maps.Point(0,0),
-									origin: new google.maps.Point(0,-3),
-									scaledSize: new google.maps.Size(100,44),
-								}
-								var marker = new google.maps.Marker({
-									position: {lat: parseFloat(cordx), lng: parseFloat(cordy)},
-									label:{
-										text: opentime+'-'+closetime,
-										color: 'white',
-										fontSize: '14px',
-									},
-									map: map,
-									icon: icon,
-								});
-								var content='<div class="map_container"><div class="item"><div class="icon"><img src="img/icon_point.svg" alt="" class="svg"></div><div class="text">'+adress+'</div></div><div class="item"><div class="icon"><img src="img/icon_phone.svg" alt="" class="svg"></div><div class="text">8 (908) 545-49-76</div></div><div class="item"><div class="icon"><img src="img/icon_map_clock.svg" alt="" class="svg"></div><div class="text">'+opentime+'-'+closetime+'</div></div><div class="icon_set"><img class="svg" src="img/icon_map_rol.svg" alt=""><img class="svg" src="img/icon_map_traktor.svg" alt=""><img class="svg" src="img/icon_map_mangal.svg" alt=""><img class="svg" src="img/icon_map_cockie.svg" alt=""><img class="svg" src="img/icon_map_lapsha.svg" alt=""><img class="svg" src="img/icon_map_pizza.svg" alt=""><img class="svg" src="img/icon_map_chiken.svg" alt=""><img class="svg" src="img/icon_map_fish.svg" alt=""><img class="svg" src="img/icon_map_bear.svg" alt=""><img class="svg" src="img/icon_map_tort.svg" alt=""></div><a class="more_link" href="#">Подробнее</a></div>';
-								var infowindow = new google.maps.InfoWindow({
-									content: content,
-									maxWidth:241,
-									pixelOffset: new google.maps.Size(-240,198)
-								});
-								marker.addListener('click', function() {
-									infowindow.open(map, marker);
-
-									map.setZoom(14);
-									map.setCenter(marker.position);
-							 
-									map.setOptions({draggable: false});
-									this.set('label', 
-										{
-											text:' ',
-											color: 'white',
-											fontSize: '14px',
-										}
-									)
-									App.initSVG();
-								});
-								google.maps.event.addListener(infowindow,'closeclick',function(){
-									map.setOptions({draggable: true});
-									map.setZoom(12);
-									map.setCenter(marker.position);
-									marker.set('label', 
-										{
-											text: opentime+'-'+closetime,
-											color: 'white',
-											fontSize: '14px',
-										}
-									)
-								});
-								google.maps.event.addListener(infowindow, 'domready', function() {
-									var iwOuter = $('.gm-style-iw');
-									iwOuter.parent().addClass('gm-style-iw-container');
-									iwOuter.first().css('max-width', 'auto')
-									var prev = iwOuter.prev();
-									prev.first().css('width', '100%').css('height', '100%');
-									prev.first().find('div:nth-child(2)').css('border-radius', '10px').css('box-shadow','0 3px 27px rgba(65, 18, 13, 0.2)').css('background', 'none');
-									prev.first().find('div:last-child').css('border-radius', '10px')
-							});
-
+						$('#map_filter *, .stores_list *').remove()
+						var input = document.getElementById('search_city');
+						var map_lat=55.0060833,
+						map_lng=82.9226662;
+						
+						var map = new google.maps.Map(document.getElementById('map_filter'), {
+							zoom: 12,
+							scrollwheel: false,
+							disableDefaultUI: true,
+							center: {lat: map_lat, lng: map_lng},
+							styles: [{"featureType":"landscape","stylers":[{"hue":"#FFBB00"},{"saturation":43.400000000000006},{"lightness":37.599999999999994},{"gamma":1}]},{"featureType":"road.highway","stylers":[{"hue":"#FFC200"},{"saturation":-61.8},{"lightness":45.599999999999994},{"gamma":1}]},{"featureType":"road.arterial","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":51.19999999999999},{"gamma":1}]},{"featureType":"road.local","stylers":[{"hue":"#FF0300"},{"saturation":-100},{"lightness":52},{"gamma":1}]},{"featureType":"water","stylers":[{"hue":"#0078FF"},{"saturation":-13.200000000000003},{"lightness":2.4000000000000057},{"gamma":1}]},{"featureType":"poi","stylers":[{"hue":"#00FF6A"},{"saturation":-1.0989010989011234},{"lightness":11.200000000000017},{"gamma":1}]}]
 						});
-					});
+						if($('#search_city').val()){
+							$.ajax({
+								url: 'https://maps.googleapis.com/maps/api/geocode/json?address='+$('#search_city').val()+'&key=AIzaSyC6vGWo8E_DBTS4D8CXkZCdyk068s8nUDU',
+								type: 'GET',
+
+								dataType: 'json',
+								success: function(data){
+						 
+									map.setCenter({lat: data['results'][0]['geometry']['location']['lat'], lng: data['results'][0]['geometry']['location']['lng']});
+									//console.log(data['geometry'])
+								}
+							})
+						}
+						var markers = [];
+						
+
+						var autocomplete = new google.maps.places.Autocomplete((input), {
+							types: ['(cities)'],
+							
+							componentRestrictions: {'country': 'ru'}
+						});
+					 
+						autocomplete.addListener('place_changed', function() {
+							var place = autocomplete.getPlace();
+							if (!place.geometry) {
+								return;
+							}
+							if (place.geometry.viewport) {
+								map.fitBounds(place.geometry.viewport);
+							} else {
+								map.setCenter(place.geometry.location);
+								map.setZoom(12);
+							}
+						});
+						$('.more_link').off('click');
+						$(doc).on('click','.more_link', function(e){
+							e.preventDefault();
+							var t=$(this);
+							id=t.data('markerid')
+							map.setOptions({draggable: true});
+							map.setCenter({lat:t.data('merkerx'), lng:t.data('merkery'), });
+							google.maps.event.trigger(markers[id], 'click');
+						})
+						function showVisibleMarkers() {
+							var bounds = map.getBounds(),
+								count = 0;
+							$('.stores_list li').hide();
+							for (var i = 0; i < markers.length; i++) {
+								var marker = markers[i];
+								if(bounds.contains(marker.getPosition())===true) {
+									count++;
+									$('.stores_list li.marker_id_'+marker.get("id")).show();
+	 
+								}
+							}
+						}
+						google.maps.event.addListener(map, 'idle', function() {
+							showVisibleMarkers();
+						});
+						//map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+						$.getJSON( "js/map_base_rus.json", function( data ) {
+							var $stotes_list_html='';
+							$i=-1;
+							$.each( data, function( key, val ) {
+
+								tags='';
+								
+								
+								if(filters){
+									filtered=false;
+									$.each(filters, function( key, value){
+										//console.log(val['TAGS'])
+									 
+
+										if($.inArray(value, val['TAGS']) > -1){
+											filtered=true;
+										}
+									})
+								} else {
+									filtered=true;
+								}
+								//console.log(filters)
+
+								//console.log($.inArray('icon_map_cockie', val['TAGS']))
+								if(filtered){
+									$i++;
+									$.each(val['TAGS'], function(index, val) {
+										tags+='<img src="img/'+val+'.svg" alt="" class="svg" />';
+									});
+									
+									var cordx=val['GEO_LATITUDE'],
+										cordy=val['GEO_LONGITUDE'],
+										opentime=val['OPEN_TIME'],
+										closetime=val['CLOSE_TIME'],
+										adress=val['ADDRESS'];
+										 var icon = {
+											url: "img/map.svg",
+											anchor: new google.maps.Point(0,0),
+											origin: new google.maps.Point(0,-3),
+											scaledSize: new google.maps.Size(100,44),
+										}
+										var marker = new google.maps.Marker({
+											position: {lat: parseFloat(cordx), lng: parseFloat(cordy)},
+											label:{
+												text: opentime+'-'+closetime,
+												color: 'white',
+												fontSize: '14px',
+											},
+											map: map,
+											icon: icon,
+										});
+										marker.setValues({id: $i});
+										markers.push(marker);
+										var content='<div class="map_container"><div class="item"><div class="icon"><img src="img/icon_point.svg" alt="" class="svg"></div><div class="text">'+adress+'</div></div><div class="item"><div class="icon"><img src="img/icon_phone.svg" alt="" class="svg"></div><div class="text">'+val['PHONE']+'</div></div><div class="item"><div class="icon"><img src="img/icon_map_clock.svg" alt="" class="svg"></div><div class="text">'+opentime+'-'+closetime+'</div></div><div class="icon_set">'+tags+'</div><a class="more_link" href="#">Подробнее</a></div>';
+										var infowindow = new google.maps.InfoWindow({
+											content: content,
+											maxWidth:241,
+											pixelOffset: new google.maps.Size(-240,198)
+										});
+										$stotes_list_html+='<li class="marker marker_id_'+$i+'"><div class="items_set"><div class="item"><div class="icon"><img src="img/icon_point.svg" alt="" class="svg"></div><div class="text">'+val['ADDRESS']+'</div></div><div class="item"><div class="icon"><img src="img/icon_phone.svg" alt="" class="svg"></div><div class="text">'+val['PHONE']+'</div></div><div class="item"><div class="icon"><img src="img/icon_map_clock.svg" alt="" class="svg"></div><div class="text">'+val['OPEN_TIME']+' - '+val['CLOSE_TIME']+'</div></div></div><a class="more_link" data-markerid="'+$i+'" data-merkerx="'+parseFloat(cordx)+'" data-merkery="'+parseFloat(cordy)+'" href="#">Подробнее</a><div class="icon_set">'+tags+'</div></li>';
+										marker.addListener('click', function() {
+											infowindow.open(map, marker);
+											map.setCenter(marker.position);
+											map.setZoom(16);
+											map.setOptions({draggable: false});
+											this.set('label', 
+												{
+													text:' ',
+													color: 'white',
+													fontSize: '14px',
+												}
+											)
+											App.initSVG();
+										});
+										
+										google.maps.event.addListener(infowindow,'closeclick',function(){
+											map.setOptions({draggable: true});
+										 	map.setZoom(12);
+											map.setCenter(marker.position);
+											marker.set('label', 
+												{
+													text: opentime+'-'+closetime,
+													color: 'white',
+													fontSize: '14px',
+												}
+											)
+										});
+										google.maps.event.addListener(infowindow, 'domready', function() {
+											var iwOuter = $('.gm-style-iw');
+											iwOuter.parent().addClass('gm-style-iw-container');
+											iwOuter.first().css('max-width', 'auto')
+											var prev = iwOuter.prev();
+											prev.first().css('width', '100%').css('height', '100%');
+											prev.first().find('div:nth-child(2)').css('border-radius', '10px').css('box-shadow','0 3px 27px rgba(65, 18, 13, 0.2)').css('background', 'none');
+											prev.first().find('div:last-child').css('border-radius', '10px')
+									});
+								}
+							});
+							$('.stores_list').html($stotes_list_html);
+							$('.get_stores .stores_list').scrollbar();
+							App.initSVG();
+						});
+
 				}
+
+				$('.desctop_filter .item_filter').on('click', function(e){
+					e.preventDefault();
+					var t=$(this);
+					if(!$(this).hasClass('select_field')){
+						
+						t.toggleClass('active');
+						if(t.hasClass('active')){
+							t.find('input[type=checkbox]').attr('checked', 'checked');
+						} else {
+							t.find('input[type=checkbox]').removeAttr('checked');
+						}
+						rebuildMapDesctop();
+					} else {
+						t.toggleClass('active');
+						if($(this).hasClass('active')){
+							t.find('input[type=checkbox]').attr('checked', 'checked');
+							$('.desctop_filter .item_filter').each(function(index, el) {
+								if(!$(this).hasClass('select_field')){
+									$(this).addClass('active');
+									$(this).find('input[type=checkbox]').attr('checked', 'checked');
+								}
+							});
+						} else {
+							t.find('input[type=checkbox]').removeAttr('checked');
+							$('.desctop_filter .item_filter').each(function(index, el) {
+								if(!$(this).hasClass('select_field')){
+									$(this).removeClass('active');
+									$(this).find('input[type=checkbox]').removeAttr('checked');
+								}
+							});
+						}
+						rebuildMapDesctop();
+					}
+				});
+				function rebuildMapDesctop(){
+					filter_checked=[];
+					
+					$('.desctop_filter .item_filter').each(function(index, el) {
+						if(!$(this).hasClass('select_field')){
+							if($(this).find('input[type=checkbox]').is(':checked')){
+								filter_checked.push($(this).find('input[type=checkbox]').val());
+							}
+						}
+					});
+					 
+					init(filter_checked);
+				}
+			 
 				init();
 			}
 		},
@@ -912,20 +1037,22 @@
 					$(win).on('load', function(){
 						container=$('.buy_list .list_items'),
 						container_width=container.outerWidth(),
-						container_pos=container.offset().top,
-						category_box=$('.add_category'),
-						category_box_pos=$('.add_category').offset().top-100;
+						container_pos=container.offset().top;
+						
 						$(win).scroll(function(){
+							var category_box=$('.add_category'),
+							category_box_pos=$('.add_category').offset().top-100;
 							var scroll_pos=$(this).scrollTop();
-								if(scroll_pos>=container_pos && scroll_pos<=category_box_pos){
-									container.addClass('fixed');
-									container.css('top',scroll_pos-container_pos).css('width', container_width)
+							console.log(scroll_pos+' '+category_box_pos)
+							if(scroll_pos>=container_pos && scroll_pos<=category_box_pos){
+								container.addClass('fixed');
+								container.css('top',scroll_pos-container_pos).css('width', container_width)
+							}
+							if(container.hasClass('fixed')){
+								if(scroll_pos<container_pos){
+									container.removeClass('fixed')
 								}
-								if(container.hasClass('fixed')){
-									if(scroll_pos<container_pos){
-										container.removeClass('fixed')
-									}
-								}
+							}
 						})
 					})
 				}
@@ -1171,7 +1298,7 @@
 						  //console.log(json_array);
 							//ВОТ ТУТ ПОПРАВИТЬ КУДА ТЕБЕ ОТПРАВЛЯТЬ И КАК ПОЛУЧАТЬ ОТВЕТ
 							$.ajax({
-							    type: "POST",
+								type: "POST",
 								url: 'js/addNewUserList.php',
 								data: {products:JSON.stringify(json_array)},
 								success: function(msg){

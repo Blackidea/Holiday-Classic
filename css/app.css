@@ -4628,6 +4628,7 @@ footer .social_buttons .social_list a:hover svg .st1 {
     overflow: hidden;
     height: 563px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
+    background: #108408;
   }
   .get_stores .stores_list li {
     background: #108408;
@@ -4641,6 +4642,7 @@ footer .social_buttons .social_list a:hover svg .st1 {
     min-height: 267px;
     padding-left: 30px;
     padding-right: 30px;
+    display: none;
   }
   .get_stores .stores_list li:after {
     content: '';
