@@ -613,7 +613,7 @@
 					$(this).parent().toggleClass('opened')
 				})
 				function init (filters) {
-						$('#map_filter *, .stores_list *').remove();
+						$('#map_filter *, ul.stores_list li.marker').remove();
 						$('.stores_container .loading').show();
 						var input = document.getElementById('search_city');
 						var map_lat=55.0060833,
@@ -674,6 +674,7 @@
 							$('.stores_list li').addClass('hide');
 							for (var i = 0; i < markers.length; i++) {
 								var marker = markers[i];
+								 
 								if(bounds.contains(marker.getPosition())===true) {
 									$('.stores_list li.marker_id_'+marker.get("id")).removeClass('hide');
 									$('.stores_list li:not(.hide):odd').css('background', '#198c11')
@@ -682,7 +683,12 @@
 									$('.stores_container .loading').hide();
 								}
 							}
-							console.log()
+							if($('.stores_list li:not(.hide)').length==0){
+								$('.stores_list li.message').removeClass('hide')
+							} else {
+								$('.stores_list li.message').addClass('hide')
+							}
+					 
 							
 						}
 						google.maps.event.addListener(map, 'idle', function() {
@@ -790,7 +796,7 @@
 								 
 								}
 							});
-							$('.stores_list').html($stotes_list_html);
+							$('.stores_list').html('<li class="message">Не найдено.</li>'+$stotes_list_html);
 							$('.get_stores .stores_list').scrollbar();
 							
 							App.initSVG();

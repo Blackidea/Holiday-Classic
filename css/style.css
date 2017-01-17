@@ -4731,6 +4731,9 @@ footer .social_buttons .social_list a:hover svg .st1 {
     padding-left: 30px;
     padding-right: 30px;
   }
+  .get_stores .stores_list li.message {
+    text-align: center;
+  }
   .get_stores .stores_list li:after {
     content: '';
     width: 0px;
