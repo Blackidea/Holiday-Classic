@@ -658,6 +658,7 @@
 							}
 						});
 						$('.more_link').off('click');
+						/*
 						$(doc).on('click','.more_link', function(e){
 							e.preventDefault();
 							var t=$(this);
@@ -665,7 +666,7 @@
 							map.setOptions({draggable: true});
 							map.setCenter({lat:t.data('merkerx'), lng:t.data('merkery'), });
 							google.maps.event.trigger(markers[id], 'click');
-						})
+						}) */
 						function showVisibleMarkers() {
 						 
 							var bounds = map.getBounds(),
@@ -714,7 +715,7 @@
 										filtered=true;
 									}
 								}
-								console.log(data.length);
+								//console.log(data.length);
 								//console.log($.inArray('icon_map_cockie', val['TAGS']))
 								if(filtered){
 									$i++;
@@ -745,17 +746,17 @@
 										});
 										marker.setValues({id: $i});
 										markers.push(marker);
-										var content='<div class="map_container"><div class="item"><div class="icon"><img src="img/icon_point.svg" alt="" class="svg"></div><div class="text">'+adress+'</div></div><div class="item"><div class="icon"><img src="img/icon_phone.svg" alt="" class="svg"></div><div class="text">'+val['PHONE']+'</div></div><div class="item"><div class="icon"><img src="img/icon_map_clock.svg" alt="" class="svg"></div><div class="text">'+opentime+'-'+closetime+'</div></div><div class="icon_set">'+tags+'</div><a class="more_link" href="#">Подробнее</a></div>';
+										var content='<div class="map_container"><div class="item"><div class="icon"><img src="img/icon_point.svg" alt="" class="svg"></div><div class="text">'+adress+'</div></div><div class="item"><div class="icon"><img src="img/icon_phone.svg" alt="" class="svg"></div><div class="text">'+val['PHONE']+'</div></div><div class="item"><div class="icon"><img src="img/icon_map_clock.svg" alt="" class="svg"></div><div class="text">'+opentime+'-'+closetime+'</div></div><div class="icon_set">'+tags+'</div><a class="more_link" href="href="/store/'+val['STORE']+'">Подробнее</a></div>';
 										var infowindow = new google.maps.InfoWindow({
 											content: content,
 											maxWidth:241,
 											pixelOffset: new google.maps.Size(-240,198)
 										});
-										$stotes_list_html+='<li class="marker marker_id_'+$i+'"><div class="items_set"><div class="item"><div class="icon"><img src="img/icon_point.svg" alt="" class="svg"></div><div class="text">'+val['ADDRESS']+'</div></div><div class="item"><div class="icon"><img src="img/icon_phone.svg" alt="" class="svg"></div><div class="text">'+val['PHONE']+'</div></div><div class="item"><div class="icon"><img src="img/icon_map_clock.svg" alt="" class="svg"></div><div class="text">'+val['OPEN_TIME']+' - '+val['CLOSE_TIME']+'</div></div></div><a class="more_link" data-markerid="'+$i+'" data-merkerx="'+parseFloat(cordx)+'" data-merkery="'+parseFloat(cordy)+'" href="#">Подробнее</a><div class="icon_set">'+tags+'</div></li>';
+										$stotes_list_html+='<li class="marker marker_id_'+$i+'"><div class="items_set"><div class="item"><div class="icon"><img src="img/icon_point.svg" alt="" class="svg"></div><div class="text">'+val['ADDRESS']+'</div></div><div class="item"><div class="icon"><img src="img/icon_phone.svg" alt="" class="svg"></div><div class="text">'+val['PHONE']+'</div></div><div class="item"><div class="icon"><img src="img/icon_map_clock.svg" alt="" class="svg"></div><div class="text">'+val['OPEN_TIME']+' - '+val['CLOSE_TIME']+'</div></div></div><a class="more_link" data-markerid="'+$i+'" data-merkerx="'+parseFloat(cordx)+'" data-merkery="'+parseFloat(cordy)+'" href="/store/'+val['STORE']+'">Подробнее</a><div class="icon_set">'+tags+'</div></li>';
 										marker.addListener('click', function() {
 											infowindow.open(map, marker);
 											map.setCenter(marker.position);
-											map.setZoom(16);
+											map.setZoom(12);
 											marker.setVisible(false);
 											map.setOptions({draggable: false});
 											$('.stores_list li').removeClass('active');
